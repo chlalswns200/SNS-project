@@ -1,6 +1,0 @@
-spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://ec2-54-180-30-101.ap-northeast-2.compute.amazonaws.com/likelion-db
-    username: root
-    password: 1234
