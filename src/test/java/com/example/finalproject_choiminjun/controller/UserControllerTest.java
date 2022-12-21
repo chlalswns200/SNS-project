@@ -4,6 +4,7 @@ import com.example.finalproject_choiminjun.domain.User;
 import com.example.finalproject_choiminjun.domain.dto.UserJoinRequest;
 import com.example.finalproject_choiminjun.domain.dto.UserJoinResponse;
 import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
+import com.example.finalproject_choiminjun.domain.dto.UserLoginResponse;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.service.UserService;
@@ -78,6 +79,61 @@ class UserControllerTest {
                 .andDo(print())
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    @DisplayName("로그인 - 성공")
+    @WithMockUser(username = "chlalswns200",password = "1q2w3e4r!")
+    void login_success() throws Exception {
+
+        UserLoginRequest userLoginRequest = new UserLoginRequest("chlalswns200", "1q2w3e4r!");
+
+        when(userService.login(userLoginRequest))
+                .thenReturn("token1234");
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(userLoginRequest)))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 #1 해당 유저 없음")
+    @WithMockUser(username = "chlalswns200",password = "1q2w3e4r!")
+    void login_fail_no_user() throws Exception {
+
+        UserLoginRequest userLoginRequest = new UserLoginRequest("chlalswns200", "1q2w3e4r!");
+
+        when(userService.login(any()))
+                .thenThrow(new AppException(ErrorCode.USERNAME_NOT_FOUND));
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(userLoginRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("로그인 - 실패 #2 비밀번호 없음")
+    @WithMockUser(username = "chlalswns200",password = "1q2w3e4r!")
+    void login_fail_invalid_password() throws Exception {
+
+        UserLoginRequest userLoginRequest = new UserLoginRequest("chlalswns200", "1q2w3e4r!");
+
+        when(userService.login(any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_PASSWORD));
+
+        mockMvc.perform(post("/api/v1/users/login")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(userLoginRequest)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
 
 
 }

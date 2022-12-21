@@ -3,6 +3,7 @@ package com.example.finalproject_choiminjun.controller;
 import com.example.finalproject_choiminjun.domain.Response;
 import com.example.finalproject_choiminjun.domain.dto.UserJoinRequest;
 import com.example.finalproject_choiminjun.domain.dto.UserJoinResponse;
+import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
 import com.example.finalproject_choiminjun.domain.dto.UserLoginResponse;
 import com.example.finalproject_choiminjun.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -27,8 +28,8 @@ public class UserController {
 
     @ApiOperation(value = "로그인")
     @PostMapping("/login")
-    public Response<UserLoginResponse> login(@RequestBody UserJoinRequest userJoinRequest) {
-        UserLoginResponse userLoginResponse = new UserLoginResponse(userService.login(userJoinRequest));
+    public Response<UserLoginResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
+        UserLoginResponse userLoginResponse = new UserLoginResponse(userService.login(userLoginRequest));
         return Response.success(userLoginResponse);
     }
 
