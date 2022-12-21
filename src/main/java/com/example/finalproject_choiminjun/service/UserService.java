@@ -3,6 +3,7 @@ package com.example.finalproject_choiminjun.service;
 import com.example.finalproject_choiminjun.domain.User;
 import com.example.finalproject_choiminjun.domain.dto.UserJoinRequest;
 import com.example.finalproject_choiminjun.domain.dto.UserJoinResponse;
+import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.repository.UserRepository;
@@ -42,14 +43,14 @@ public class UserService {
                 .orElseThrow(()->new AppException(ErrorCode.USERNAME_NOT_FOUND, userName+ "이 없습니다."));
     }
 
-    public String login(UserJoinRequest userJoinRequest) {
-        User byUserName = userRepository.findByUserName(userJoinRequest.getUserName())
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userJoinRequest.getUserName()+"이 없습니다."));
+    public String login(UserLoginRequest userLoginRequest) {
+        User byUserName = userRepository.findByUserName(userLoginRequest.getUserName())
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userLoginRequest.getUserName()+"이 없습니다."));
 
-        if(!encoder.matches(userJoinRequest.getPassword(), byUserName.getPassword())){
+        if(!encoder.matches(userLoginRequest.getPassword(), byUserName.getPassword())){
             throw new AppException(ErrorCode.INVALID_PASSWORD,"패스워드가 잘못 되었습니다.");
         }
 
-        return JwtTokenUtil.generateToken(userJoinRequest.getUserName(), secretKey, expireTimeMs);
+        return JwtTokenUtil.generateToken(userLoginRequest.getUserName(), secretKey, expireTimeMs);
     }
 }
