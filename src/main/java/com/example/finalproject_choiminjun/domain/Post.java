@@ -23,10 +23,11 @@ public class Post extends BaseEntity{
     @JoinColumn(name = "user_id")
     private User user;
 
-    public static Post of(PostRequest postRequest) {
+    public static Post of(PostRequest postRequest,User user) {
         Post post = Post.builder()
                 .title(postRequest.getTitle())
                 .body(postRequest.getBody())
+                .user(user)
                 .build();
         return post;
     }
