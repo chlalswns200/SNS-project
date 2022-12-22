@@ -33,7 +33,7 @@ public class UserService {
                     throw new AppException(ErrorCode.DUPLICATED_USER_NAME, String.format("UserName:%s", userJoinRequest.getUserName()));
                 });
 
-        User save = userRepository.save(userJoinRequest.toEntity(encode));
+        User save = userRepository.save(User.of(userJoinRequest,encode));
         return new UserJoinResponse(save.getId(), save.getUserName());
     }
 
