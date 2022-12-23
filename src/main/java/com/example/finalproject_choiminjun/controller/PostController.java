@@ -1,18 +1,15 @@
 package com.example.finalproject_choiminjun.controller;
 
+import com.example.finalproject_choiminjun.domain.Post;
 import com.example.finalproject_choiminjun.domain.Response;
+import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import com.example.finalproject_choiminjun.domain.dto.PostResponse;
-import com.example.finalproject_choiminjun.exception.AppException;
-import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +25,12 @@ public class PostController {
 
         PostResponse postResponse = postService.post(postRequest,userName);
         return Response.success(postResponse);
+    }
+
+    @GetMapping("/{id}")
+    public Response<OnePostResponse> getOnePost(@PathVariable Long id) {
+        Post post = postService.get(id);
+        return Response.success(new OnePostResponse().entityToResponse(post));
     }
 
 

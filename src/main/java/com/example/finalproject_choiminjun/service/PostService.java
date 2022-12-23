@@ -27,5 +27,12 @@ public class PostService {
         return new PostResponse("포스트 등록 완료", save.getId());
     }
 
+    public Post get(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        return post;
+
+    }
+
 
 }
