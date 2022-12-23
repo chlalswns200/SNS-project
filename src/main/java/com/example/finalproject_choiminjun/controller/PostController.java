@@ -8,10 +8,15 @@ import com.example.finalproject_choiminjun.domain.dto.PostResponse;
 import com.example.finalproject_choiminjun.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.awt.print.Pageable;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,5 +51,12 @@ public class PostController {
     public Response<PostResponse> deleteOne(@PathVariable Long id, Authentication authentication, @RequestBody PostRequest postRequest) {
         PostResponse postResponse = postService.deleteOnePost(id, authentication.getName(), postRequest);
         return Response.success(postResponse);
+    }
+
+    @GetMapping
+    public Response<Page<OnePostResponse>> postList(@PageableDefault(size = 20)
+                                                     @SortDefault(sort = "createdAt",direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<OnePostResponse> pages = postService.getPostList(pageable);
+        return Response.success(pages);
     }
 }

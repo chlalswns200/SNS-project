@@ -1,5 +1,6 @@
 package com.example.finalproject_choiminjun.domain;
 
+import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import lombok.*;
 

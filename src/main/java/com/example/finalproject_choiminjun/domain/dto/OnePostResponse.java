@@ -5,8 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @AllArgsConstructor
 @Getter
@@ -20,7 +25,7 @@ public class OnePostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
 
-    public OnePostResponse entityToResponse(Post post) {
+    public static OnePostResponse entityToResponse(Post post) {
 
         OnePostResponse opr = OnePostResponse.builder()
                 .id(post.getId())
@@ -30,8 +35,18 @@ public class OnePostResponse {
                 .createdAt(post.getCreatedAt())
                 .lastModifiedAt(post.getLastModifiedAt())
                 .build();
-
         return opr;
     }
 
+    public static Page<OnePostResponse> toList(Page<Post> all) {
+
+        List<OnePostResponse> postList = new ArrayList<>();
+
+        for (Post post : all) {
+            OnePostResponse onePostResponse = OnePostResponse.entityToResponse(post);
+            postList.add(onePostResponse);
+        }
+        Page<OnePostResponse> postPage = new PageImpl<>(postList);
+        return postPage;
+    }
 }

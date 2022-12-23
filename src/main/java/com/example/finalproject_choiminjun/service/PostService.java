@@ -2,6 +2,7 @@ package com.example.finalproject_choiminjun.service;
 
 import com.example.finalproject_choiminjun.domain.Post;
 import com.example.finalproject_choiminjun.domain.User;
+import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import com.example.finalproject_choiminjun.domain.dto.PostResponse;
 import com.example.finalproject_choiminjun.exception.AppException;
@@ -9,10 +10,14 @@ import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -71,6 +76,13 @@ public class PostService {
         postRepository.delete(post);
 
         return new PostResponse("포스트 삭제 완료", post.getId());
+
+    }
+
+    public Page<OnePostResponse> getPostList(Pageable pageable) {
+        Page<Post> all = postRepository.findAll(pageable);
+        Page<OnePostResponse> responseList = OnePostResponse.toList(all);
+        return responseList;
 
     }
 }
