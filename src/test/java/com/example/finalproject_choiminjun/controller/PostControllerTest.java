@@ -1,5 +1,6 @@
 package com.example.finalproject_choiminjun.controller;
 
+import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import com.example.finalproject_choiminjun.domain.dto.PostResponse;
 import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
@@ -13,16 +14,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -78,5 +85,24 @@ class PostControllerTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @DisplayName("전체 포스트 리스트 - 성공")
+    @WithMockUser
+    void pages() throws Exception {
+
+        List<OnePostResponse> postList = new ArrayList<>();
+
+        Page<OnePostResponse> pages = new PageImpl<>(postList);
+        //given
+        when(postService.getPostList(any()))
+                .thenReturn(pages);
+        //when
+        mockMvc.perform(get("/api/v1/posts")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+        //then
+    }
 
 }
