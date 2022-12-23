@@ -15,7 +15,7 @@ public enum ErrorCode {
     INVALID_PERMISSION(HttpStatus.UNAUTHORIZED, "사용자가 권한이 없습니다."),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 포스트가 없습니다."),
     DATABASE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "DB에러"),
-    JWT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "jwt에러")
+    JWT_NOT_FOUND(HttpStatus.FORBIDDEN, "jwt없음")
     ;
 
     private HttpStatus status;

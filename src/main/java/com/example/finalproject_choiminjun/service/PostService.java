@@ -9,8 +9,11 @@ import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -34,5 +37,40 @@ public class PostService {
 
     }
 
+    @Transactional
+    public PostResponse modifyOnePost(Long id,String userName,PostRequest postRequest) {
 
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+
+        if (!Objects.equals(post.getUser().getId(),user.getId())) {
+            throw new AppException(ErrorCode.INVALID_PERMISSION);
+        }
+        post.setTitle(postRequest.getTitle());
+        post.setBody(postRequest.getBody());
+        postRepository.saveAndFlush(post);
+
+        return new PostResponse("포스트 수정 완료", post.getId());
+
+    }
+
+    public PostResponse deleteOnePost(Long id, String userName, PostRequest postRequest) {
+
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+
+        if (!Objects.equals(post.getUser().getId(),user.getId())) {
+            throw new AppException(ErrorCode.INVALID_PERMISSION);
+        }
+        postRepository.delete(post);
+
+        return new PostResponse("포스트 삭제 완료", post.getId());
+
+    }
 }
