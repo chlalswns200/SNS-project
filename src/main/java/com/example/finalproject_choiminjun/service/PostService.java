@@ -10,6 +10,7 @@ import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
@@ -35,21 +37,29 @@ public class PostService {
         return new PostResponse("포스트 등록 완료", save.getId());
     }
 
-    public Post get(Long id) {
+    public OnePostResponse get(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-        return post;
+        OnePostResponse onePostResponse = OnePostResponse.entityToResponse(post);
+        return onePostResponse;
 
     }
 
     @Transactional
     public PostResponse modifyOnePost(Long id,String userName,PostRequest postRequest) {
 
+        log.info("input_id : {}",id);
+        log.info("input_userName : {}",userName);
+        log.info("input_postRequest_title : {}",postRequest.getTitle());
+
+
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        log.info("find_userName_in_userId : {}",post.getUser().getId());
 
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        log.info("find_userId : {}", user.getId());
 
         if (!Objects.equals(post.getUser().getId(),user.getId())) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);

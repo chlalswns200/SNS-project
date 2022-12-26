@@ -24,7 +24,6 @@ import java.util.List;
 @Slf4j
 public class PostController {
     private final PostService postService;
-
     @PostMapping
     public Response<PostResponse> posts(@RequestBody PostRequest postRequest, Authentication authentication) {
 
@@ -37,8 +36,8 @@ public class PostController {
 
     @GetMapping("/{id}")
     public Response<OnePostResponse> getOnePost(@PathVariable Long id) {
-        Post post = postService.get(id);
-        return Response.success(new OnePostResponse().entityToResponse(post));
+        OnePostResponse onePostResponse = postService.get(id);
+        return Response.success(onePostResponse);
     }
 
     @PutMapping("/{id}")
