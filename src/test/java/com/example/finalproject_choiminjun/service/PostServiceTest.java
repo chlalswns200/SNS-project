@@ -195,4 +195,104 @@ public class PostServiceTest {
             assertEquals("user를 찾을 수 없습니다.",e.getMessage());
         }
     }
+
+    @Test
+    @DisplayName("포스트 삭제 - 실패#1 유저 존재하지 않음")
+    void post_delete_fail1() throws Exception {
+
+        User userA = User.builder()
+                .id(1L)
+                .userName("userA")
+                .password("1q2w3e4r!")
+                .role(UserRole.NORMAL)
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .user(userA)
+                .title("title1")
+                .body("body1")
+                .build();
+
+        given(postRepository.findById(any()))
+                .willReturn(Optional.of(post));
+
+        //given
+        given(userRepository.findByUserName(any()))
+                .willThrow(new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        //when
+        try {
+            postService.deleteOnePost(1L, "userA");
+        } catch (Exception e) {
+            assertEquals("user를 찾을 수 없습니다.",e.getMessage());
+        }
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 - 실패#2 포스트 존재 하지 않음")
+    void post_delete_fail2() throws Exception {
+
+        User userA = User.builder()
+                .id(1L)
+                .userName("userA")
+                .password("1q2w3e4r!")
+                .role(UserRole.NORMAL)
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .user(userA)
+                .title("title1")
+                .body("body1")
+                .build();
+
+        given(postRepository.findById(any()))
+                .willThrow(new AppException(ErrorCode.POST_NOT_FOUND));
+        try {
+            postService.deleteOnePost(1L, "userA");
+        } catch (Exception e) {
+            assertEquals("해당 포스트가 없습니다.",e.getMessage());
+        }
+    }
+    @Test
+    @DisplayName("포스트 삭제 - 실패#3 작성자와 유저가 불일치")
+    void post_delete_fail3() throws Exception {
+
+        User userA = User.builder()
+                .id(1L)
+                .userName("userA")
+                .password("1q2w3e4r!")
+                .role(UserRole.NORMAL)
+                .build();
+
+        User userB = User.builder()
+                .id(2L)
+                .userName("userB")
+                .password("1q2w3e4r!")
+                .role(UserRole.NORMAL)
+                .build();
+
+        Post post = Post.builder()
+                .id(1L)
+                .user(userA)
+                .title("title1")
+                .body("body1")
+                .build();
+
+        given(postRepository.findById(1L))
+                .willReturn(Optional.of(post));
+
+        given(userRepository.findByUserName("userA"))
+                .willReturn(Optional.of(userA));
+
+        given(userRepository.findByUserName("userB"))
+                .willReturn(Optional.of(userB));
+
+        try {
+            postService.deleteOnePost(1L, "userB");
+        } catch (Exception e) {
+            assertEquals("사용자가 권한이 없습니다.",e.getMessage());
+        }
+    }
+
 }

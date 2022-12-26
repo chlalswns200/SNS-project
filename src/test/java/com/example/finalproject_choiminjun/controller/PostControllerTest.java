@@ -213,6 +213,62 @@ class PostControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("포스트 삭제 - 성공")
+    @WithMockUser
+    void post_delete_success() throws Exception {
 
+        PostResponse postResponse = new PostResponse("포스트 삭제 완료", 1L);
+        //given
+        given(postService.deleteOnePost(any(), any()))
+                .willReturn(postResponse);
+        //when
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 - 실패 #1 인증 실패")
+    @WithAnonymousUser
+    void post_delete_fail_1() throws Exception {
+        //given
+        given(postService.deleteOnePost(any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 - 실패 #2 작성자 불일치")
+    @WithMockUser
+    void post_delete_fail_2() throws Exception {
+
+        given(postService.deleteOnePost(any(), any()))
+                .willThrow(new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("포스트 삭제 - 실패 #3 데이터베이스 에러")
+    @WithMockUser
+    void post_delete_fail_3() throws Exception {
+
+        given(postService.deleteOnePost(any(), any()))
+                .willThrow(new AppException(ErrorCode.POST_NOT_FOUND));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
 
 }
