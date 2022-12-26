@@ -13,7 +13,7 @@ public class HelloController {
     @ApiOperation(value = "cicd테스트")
     @GetMapping("/hello")
     public ResponseEntity<String> hello() {
-        return ResponseEntity.ok().body("popin");
+        return ResponseEntity.ok().body("happy_new_year");
     }
 
 }
