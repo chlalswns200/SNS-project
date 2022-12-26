@@ -72,7 +72,7 @@ public class PostService {
 
     }
 
-    public PostResponse deleteOnePost(Long id, String userName, PostRequest postRequest) {
+    public PostResponse deleteOnePost(Long id, String userName) {
 
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
