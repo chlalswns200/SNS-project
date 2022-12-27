@@ -1,0 +1,33 @@
+{{>layouts/header}}
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Title</th>
+        <th scope="col">Writer</th>
+        <th scope="col">Date</th>
+
+    </tr>
+    </thead>
+    <tbody class="table-group-divider">
+    {{#posts}}
+        <tr>
+            <th scope="row">{{id}}</th>
+            <td><a href="/posts/{{id}}">{{title}}</a></td>
+            <th> {{userName}}</th>
+            <th> {{createdAt}}</th>
+        </tr>
+    {{/posts}}
+    </tbody>
+</table>
+<div class="btn-group btn-group-lg" role="group" aria-label="Large button group">
+    {{#keyword}}
+        <a href="?page={{previous}}&keyword={{keyword}}" type="button" class="btn btn-outline-dark">Previous</a>
+        <a href="?page={{next}}&keyword={{keyword}}" type="button" class="btn btn-outline-dark">Next</a>
+    {{/keyword}}
+    {{^keyword}}
+        <a href="?page={{previous}}" type="button" class="btn btn-outline-dark">Previous</a>
+        <a href="?page={{next}}" type="button" class="btn btn-outline-dark">Next</a>
+    {{/keyword}}
+</div>
+{{>layouts/footer}}

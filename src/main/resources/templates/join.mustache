@@ -1,0 +1,17 @@
+{{>layouts/header}}
+<form class="container" action="/users" method="post">
+    <h1>
+        회원가입
+    </h1>
+    <div class="mb-3">
+        <label class="form-label">username</label>
+        <input type="text" class="form-control" name="username">
+    </div>
+    <div class="mb-3">
+        <label class="form-label">password</label>
+        <input type="password" class="form-control" name="password">
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+    <a href="/posts">back</a>
+</form>
+{{>layouts/footer}}

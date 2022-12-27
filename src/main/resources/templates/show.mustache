@@ -1,0 +1,17 @@
+{{>layouts/header}}
+{{#post}}
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">{{id}}</h6>
+            <p class="card-text">{{body}}</p>
+            <p class="card-text">{{userName}}</p>
+            <p class="card-text">{{createdAt}}</p>
+            <a href="/articles/new" class="card-link">new post</a>
+            <a href="/articles" class="card-link">list post</a>
+        </div>
+    </div>
+    <a href="/articles/{{id}}/edit" class="btn btn-primary">Edit</a>
+    <a href="/articles/{{id}}/delete" class="btn btn-danger">Delete</a>
+{{/post}}
+{{>layouts/footer}}
