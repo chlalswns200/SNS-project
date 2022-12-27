@@ -1,10 +1,8 @@
 package com.example.finalproject_choiminjun.controller;
 
 import com.example.finalproject_choiminjun.domain.User;
-import com.example.finalproject_choiminjun.domain.dto.UserJoinRequest;
-import com.example.finalproject_choiminjun.domain.dto.UserJoinResponse;
-import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
-import com.example.finalproject_choiminjun.domain.dto.UserLoginResponse;
+import com.example.finalproject_choiminjun.domain.UserRole;
+import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.service.UserService;
@@ -15,12 +13,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -130,6 +131,43 @@ class UserControllerTest {
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsBytes(userLoginRequest)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("권한 변경 - 성공")
+    @WithMockUser
+    void roll_change_success() throws Exception {
+
+        RoleRequest roleRequest = new RoleRequest("admin");
+        UserResponse userResponse = new UserResponse("권한이 변경되었습니다",1l);
+
+        given(userService.changeUserRole(any(), any(), any()))
+                .willReturn(userResponse);
+
+        mockMvc.perform(post("/api/v1/users/1/role/change")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(roleRequest)))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("권한 변경 - 실패 - 인증되지 않은 유저")
+    @WithAnonymousUser
+    void role_change_fail() throws Exception {
+
+        RoleRequest roleRequest = new RoleRequest("admin");
+
+        given(userService.changeUserRole(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+
+        mockMvc.perform(post("/api/v1/users/1/role/change")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(roleRequest)))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
     }
