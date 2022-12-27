@@ -2,6 +2,7 @@ package com.example.finalproject_choiminjun.service;
 
 import com.example.finalproject_choiminjun.domain.Post;
 import com.example.finalproject_choiminjun.domain.User;
+import com.example.finalproject_choiminjun.domain.UserRole;
 import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import com.example.finalproject_choiminjun.domain.dto.PostResponse;
@@ -48,20 +49,13 @@ public class PostService {
     @Transactional
     public PostResponse modifyOnePost(Long id,String userName,PostRequest postRequest) {
 
-        log.info("input_id : {}",id);
-        log.info("input_userName : {}",userName);
-        log.info("input_postRequest_title : {}",postRequest.getTitle());
-
-
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-        log.info("find_userName_in_userId : {}",post.getUser().getId());
 
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
-        log.info("find_userId : {}", user.getId());
 
-        if (!Objects.equals(post.getUser().getId(),user.getId())) {
+        if (!Objects.equals(post.getUser().getId(),user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);
         }
         post.setTitle(postRequest.getTitle());
@@ -80,7 +74,7 @@ public class PostService {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
 
-        if (!Objects.equals(post.getUser().getId(),user.getId())) {
+        if (!Objects.equals(post.getUser().getId(),user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);
         }
         postRepository.delete(post);
