@@ -30,6 +30,7 @@ public class SecurityConfig {
                 .antMatchers("/api/v1/users/join", "/api/v1/users/login").permitAll()// join, login은 언제나 가능
                 .antMatchers(HttpMethod.POST,"/api/v1/posts/*", "/api/v1/posts").authenticated()
                 .antMatchers("/api/v1/users/*/role/change").authenticated()
+                .antMatchers(HttpMethod.POST,"/posts/*", "/api/v1/posts").authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // jwt사용하는 경우 씀

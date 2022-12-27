@@ -1,14 +1,11 @@
 package com.example.finalproject_choiminjun.controller;
 
-import com.example.finalproject_choiminjun.domain.Post;
 import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import com.example.finalproject_choiminjun.domain.dto.PostResponse;
-import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.service.PostService;
-import com.example.finalproject_choiminjun.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -37,8 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(PostController.class)
-class PostControllerTest {
+@WebMvcTest(PostApiController.class)
+class PostApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

@@ -1,7 +1,6 @@
 package com.example.finalproject_choiminjun.controller;
 
 import com.example.finalproject_choiminjun.domain.Response;
-import com.example.finalproject_choiminjun.domain.UserRole;
 import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
 @Slf4j
-public class UserController {
+public class UserApiController {
     private final UserService userService;
 
     @ApiOperation(value = "회원 가입")

@@ -1,7 +1,5 @@
 package com.example.finalproject_choiminjun.controller;
 
-import com.example.finalproject_choiminjun.domain.User;
-import com.example.finalproject_choiminjun.domain.UserRole;
 import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
@@ -26,8 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
-class UserControllerTest {
+@WebMvcTest(UserApiController.class)
+class UserApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

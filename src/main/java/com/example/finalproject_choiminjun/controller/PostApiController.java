@@ -1,6 +1,5 @@
 package com.example.finalproject_choiminjun.controller;
 
-import com.example.finalproject_choiminjun.domain.Post;
 import com.example.finalproject_choiminjun.domain.Response;
 import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
 import com.example.finalproject_choiminjun.domain.dto.PostRequest;
@@ -16,13 +15,11 @@ import org.springframework.data.web.SortDefault;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
 @Slf4j
-public class PostController {
+public class PostApiController {
     private final PostService postService;
     @PostMapping
     public Response<PostResponse> posts(@RequestBody PostRequest postRequest, Authentication authentication) {
