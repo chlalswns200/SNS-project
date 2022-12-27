@@ -29,4 +29,8 @@ public class User extends BaseEntity{
                 .build();
         return user;
     }
+
+    public void changeRole(UserRole userRole) {
+        this.role = userRole;
+    }
 }

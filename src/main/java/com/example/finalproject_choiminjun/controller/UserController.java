@@ -1,21 +1,19 @@
 package com.example.finalproject_choiminjun.controller;
 
 import com.example.finalproject_choiminjun.domain.Response;
-import com.example.finalproject_choiminjun.domain.dto.UserJoinRequest;
-import com.example.finalproject_choiminjun.domain.dto.UserJoinResponse;
-import com.example.finalproject_choiminjun.domain.dto.UserLoginRequest;
-import com.example.finalproject_choiminjun.domain.dto.UserLoginResponse;
+import com.example.finalproject_choiminjun.domain.UserRole;
+import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -31,6 +29,11 @@ public class UserController {
     public Response<UserLoginResponse> login(@RequestBody UserLoginRequest userLoginRequest) {
         UserLoginResponse userLoginResponse = new UserLoginResponse(userService.login(userLoginRequest));
         return Response.success(userLoginResponse);
+    }
+    @PostMapping("/{id}/role/change")
+    public Response<UserResponse> changeRole(@PathVariable Long id, Authentication authentication, @RequestBody RoleRequest roleRequest) {
+        UserResponse userResponse = userService.changeUserRole(id, roleRequest.getUserRole(),authentication.getName());
+        return Response.success(userResponse);
     }
 
 }

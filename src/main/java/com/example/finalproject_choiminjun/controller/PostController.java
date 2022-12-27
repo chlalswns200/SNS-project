@@ -58,4 +58,5 @@ public class PostController {
         Page<OnePostResponse> pages = postService.getPostList(pageable);
         return Response.success(pages);
     }
+
 }
