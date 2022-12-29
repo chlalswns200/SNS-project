@@ -31,7 +31,7 @@ public class UserService {
 
         userRepository.findByUserName(userJoinRequest.getUserName())
                 .ifPresent(user ->{
-                    throw new AppException(ErrorCode.DUPLICATED_USER_NAME, String.format("UserName:%s", userJoinRequest.getUserName()));
+                    throw new AppException(ErrorCode.DUPLICATED_USER_NAME);
                 });
 
         User save = userRepository.save(User.of(userJoinRequest,encode));
@@ -41,15 +41,15 @@ public class UserService {
 
     public User getUserByUserName(String userName) {
         return userRepository.findByUserName(userName)
-                .orElseThrow(()->new AppException(ErrorCode.USERNAME_NOT_FOUND, userName+ "이 없습니다."));
+                .orElseThrow(()->new AppException(ErrorCode.USERNAME_NOT_FOUND));
     }
 
     public String login(UserLoginRequest userLoginRequest) {
         User byUserName = userRepository.findByUserName(userLoginRequest.getUserName())
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userLoginRequest.getUserName()+"이 없습니다."));
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
 
         if(!encoder.matches(userLoginRequest.getPassword(), byUserName.getPassword())){
-            throw new AppException(ErrorCode.INVALID_PASSWORD,"패스워드가 잘못 되었습니다.");
+            throw new AppException(ErrorCode.INVALID_PASSWORD);
         }
 
         return JwtTokenUtil.generateToken(userLoginRequest.getUserName(), secretKey, expireTimeMs);
