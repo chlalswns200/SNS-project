@@ -1,9 +1,11 @@
 package com.example.finalproject_choiminjun.domain;
 
+import com.example.finalproject_choiminjun.domain.dto.CommentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.domain.Page;
 
 import javax.persistence.*;
 
@@ -31,4 +33,5 @@ public class Comment extends BaseEntity{
                 .build();
         return commentOne;
     }
+
 }

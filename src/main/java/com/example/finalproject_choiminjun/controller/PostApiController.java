@@ -59,8 +59,15 @@ public class PostApiController {
     @PostMapping("/{postsId}/comments")
     public Response<CommentResponse> comments(@PathVariable Long postsId, Authentication authentication, @RequestBody CommentRequest commentRequest) {
 
-        CommentResponse commentResponse = postService.writeComment(postsId,authentication.getName(),commentRequest);
+        CommentResponse commentResponse = postService.writeComment(postsId, authentication.getName(), commentRequest);
         return Response.success(commentResponse);
 
+    }
+
+    @GetMapping("/{postId}/comments")
+    public Response<Page<CommentResponse>> commentsList(@PageableDefault(size = 20)
+                                                            @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,@PathVariable Long postId) {
+        Page<CommentResponse> commentsList =postService.getCommentsList(pageable,postId);
+        return Response.success(commentsList);
     }
 }
