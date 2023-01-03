@@ -350,5 +350,121 @@ class PostApiControllerTest {
 
     }
 
+    @Test
+    @DisplayName("댓글 수정 성공")
+    @WithMockUser
+    void comment_modify_success() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test");
+
+        CommentModifyResponse commentModifyResponse = CommentModifyResponse.builder()
+                .comment("comment-test-modify")
+                .build();
+        //given
+        given(postService.modifyComment(any(), any(), any(), any()))
+                .willReturn(commentModifyResponse);
+
+        //when
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest)))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("SUCCESS"))
+                .andExpect(status().isOk());
+        //then
+
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패#1 - 인증 실패")
+    @WithAnonymousUser
+    void comment_modify_fail1() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test");
+
+        //given
+        given(postService.modifyComment(any(), any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+
+        //when
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest)))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+        //then
+
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패#2 - 댓글 불일치")
+    @WithMockUser
+    void comment_modify_fail2() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test");
+
+        //given
+        given(postService.modifyComment(any(), any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.COMMENTS_NOT_FOUND));
+
+        //when
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest)))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isNotFound());
+        //then
+
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패#3 - 작성자 불일치")
+    @WithMockUser
+    void comment_modify_fail3() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test");
+
+        //given
+        given(postService.modifyComment(any(), any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+
+        //when
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest)))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isUnauthorized());
+        //then
+
+    }
+
+    @Test
+    @DisplayName("댓글 수정 실패#4 - 데이터베이스 에러")
+    @WithMockUser
+    void comment_modify_fail4() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test");
+
+        //given
+        given(postService.modifyComment(any(), any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.DATABASE_ERROR));
+
+        //when
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest)))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isInternalServerError());
+        //then
+
+    }
 
 }
