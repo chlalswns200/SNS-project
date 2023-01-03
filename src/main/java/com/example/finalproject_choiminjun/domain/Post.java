@@ -11,7 +11,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Getter
-@Setter
 public class Post extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +28,11 @@ public class Post extends BaseEntity{
                 .user(user)
                 .build();
         return post;
+    }
+
+    public void modifyPost(String title, String body) {
+        this.title = title;
+        this.body = body;
     }
 
 }

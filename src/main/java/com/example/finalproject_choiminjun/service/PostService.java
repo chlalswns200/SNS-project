@@ -1,27 +1,23 @@
 package com.example.finalproject_choiminjun.service;
 
+import com.example.finalproject_choiminjun.domain.Comment;
 import com.example.finalproject_choiminjun.domain.Post;
 import com.example.finalproject_choiminjun.domain.User;
 import com.example.finalproject_choiminjun.domain.UserRole;
-import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
-import com.example.finalproject_choiminjun.domain.dto.PostRequest;
-import com.example.finalproject_choiminjun.domain.dto.PostResponse;
+import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
+import com.example.finalproject_choiminjun.repository.CommentRepository;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +25,8 @@ import java.util.Optional;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
+    private final CommentRepository commentRepository;
     public PostResponse post(PostRequest postRequest,String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userName + "이 없습니다."));
@@ -58,8 +56,7 @@ public class PostService {
         if (!Objects.equals(post.getUser().getId(),user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);
         }
-        post.setTitle(postRequest.getTitle());
-        post.setBody(postRequest.getBody());
+        post.modifyPost(postRequest.getTitle(), postRequest.getBody());
         postRepository.saveAndFlush(post);
 
         return new PostResponse("포스트 수정 완료", post.getId());
@@ -88,5 +85,24 @@ public class PostService {
         Page<OnePostResponse> responseList = OnePostResponse.toList(all);
         return responseList;
 
+    }
+
+    public CommentResponse writeComment(Long postsId,String userName ,CommentRequest commentRequest) {
+
+        Post post = postRepository.findById(postsId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+
+        Comment save = commentRepository.save( Comment.of(commentRequest.getComment(), post, user));
+
+        return CommentResponse.builder()
+                .id(save.getId())
+                .comment(save.getComment())
+                .createdAt(save.getCreatedAt())
+                .userName(user.getUserName())
+                .postId(post.getId())
+                .build();
     }
 }

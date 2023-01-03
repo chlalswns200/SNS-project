@@ -1,9 +1,8 @@
 package com.example.finalproject_choiminjun.controller;
 
+import com.example.finalproject_choiminjun.domain.Comment;
 import com.example.finalproject_choiminjun.domain.Response;
-import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
-import com.example.finalproject_choiminjun.domain.dto.PostRequest;
-import com.example.finalproject_choiminjun.domain.dto.PostResponse;
+import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class PostApiController {
     private final PostService postService;
+
     @PostMapping
     public Response<PostResponse> posts(@RequestBody PostRequest postRequest, Authentication authentication) {
 
@@ -51,9 +51,16 @@ public class PostApiController {
 
     @GetMapping
     public Response<Page<OnePostResponse>> postList(@PageableDefault(size = 20)
-                                                     @SortDefault(sort = "createdAt",direction = Sort.Direction.DESC) Pageable pageable) {
+                                                    @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         Page<OnePostResponse> pages = postService.getPostList(pageable);
         return Response.success(pages);
     }
 
+    @PostMapping("/{postsId}/comments")
+    public Response<CommentResponse> comments(@PathVariable Long postsId, Authentication authentication, @RequestBody CommentRequest commentRequest) {
+
+        CommentResponse commentResponse = postService.writeComment(postsId,authentication.getName(),commentRequest);
+        return Response.success(commentResponse);
+
+    }
 }
