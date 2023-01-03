@@ -467,4 +467,95 @@ class PostApiControllerTest {
 
     }
 
+    @Test
+    @DisplayName("댓글 삭제 - 성공")
+    @WithMockUser
+    void comments_delete_success() throws Exception {
+
+        CommentDeleteResponse commentDeleteResponse = new CommentDeleteResponse("삭제 완료", 1L);
+
+        //given
+        given(postService.deleteOneComment(any(), any(), any()))
+                .willReturn(commentDeleteResponse);
+        //when
+        mockMvc.perform(delete("/api/v1/posts/5/comments/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(jsonPath("result.message").value("삭제 완료"))
+                .andExpect(status().isOk());
+
+    }
+
+
+    @Test
+    @DisplayName("댓글 삭제 - 실패 #1 인증 실패")
+    @WithAnonymousUser
+    void comments_delete_fail1() throws Exception {
+
+        CommentDeleteResponse commentDeleteResponse = new CommentDeleteResponse("삭제 완료", 1L);
+
+        //given
+        given(postService.deleteOneComment(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/5/comments/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 - 실패 #2 댓글 불일치")
+    @WithMockUser
+    void comments_delete_fail2() throws Exception {
+
+        CommentDeleteResponse commentDeleteResponse = new CommentDeleteResponse("삭제 완료", 1L);
+
+        //given
+        given(postService.deleteOneComment(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.COMMENTS_NOT_FOUND));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/5/comments/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 - 실패 #3 작성자 불일치")
+    @WithMockUser
+    void comments_delete_fail3() throws Exception {
+
+        CommentDeleteResponse commentDeleteResponse = new CommentDeleteResponse("삭제 완료", 1L);
+
+        //given
+        given(postService.deleteOneComment(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/5/comments/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 - 실패 #4 데이터베이스 에러")
+    @WithMockUser
+    void comments_delete_fail4() throws Exception {
+
+        CommentDeleteResponse commentDeleteResponse = new CommentDeleteResponse("삭제 완료", 1L);
+
+        //given
+        given(postService.deleteOneComment(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.DATABASE_ERROR));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/5/comments/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isInternalServerError());
+    }
+
 }
