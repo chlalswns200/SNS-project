@@ -1,92 +1,272 @@
-# FinalProject_ChoiMinjun
+# MutsaSNS
+
+## 미션 요구사항 분석 & 체크리스트
+
+---
+
+### 필수과제(6/6)
+
+- [x] 회원가입
+- [x] Swagger
+- [x] AWS EC2에 Docker 배포
+- [x] Gitlab CI & Crontab CD
+- [x] 로그인
+- [x] 포스트 작성, 수정, 삭제, 리스트
+
+### 도전과제(2.25/3)
+
+- [x] 화면 UI 개발
+    - [x] 회원가입
+    - [ ] 로그인
+    - [ ] 글쓰기
+    - [x] 조회
+- [x] ADMIN 회원으로 등급업하는 기능
+
+- [x] ADMIN 회원이 로그인 시 자신이 쓴 글이 아닌 글과 댓글에 수정, 삭제를 할 수 있는 기능
+
+---
+
+## 1주차 미션 요약
+
+### [접근 방법]
+#### 구현 중점
+필수 과제는 빠짐없이 구현하기
+
+강의 자료나 인터넷에서 복사를 하더라도 코드가 무슨 내용인지 이해하고 복사하기
+
+그렇지 못할 경우 따로 파둔 프로젝트에서 연습하기
+
+tdd를 최대한 활용하기
+#### 참고 자료
+수업시간 코드와 강사님 유튜브 자료
+
+테스트 작성을 위해 mockito 관련 블로그 글을 많이 읽었습니다.
+
+#### 결과물
+필수 과제로 나왔던 모든 기능이 작동하고 부족하지만 도전과제도 어느 정도 해냈다.
+
+### [특이 사항]
+
+#### 아쉬웠던 점, 궁금한 점
+
+**필수 과제 - 예외 처리**
+
+jwt 토큰을 예외처리 할 때 토큰 만료와 같은 예외는 spring 내부까지 들어오지 못하고
+밖에서 처리되는 것 같다 
+
+securityConfig 쪽을 설정 하면 spring 밖의 예외 또한 핸들링 하는 방법이 있을텐데
+해당 부분을 하지 못해서 아쉽다 
+
+해당 예외는 어떤식으로 처리해야 할까?
 
 
+**도전 과제 - 세션 처리**
 
-## Getting started
+나는 ui 도전 과제 개발을 수업시간에 배운 mustache를 활용 했다
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+조회와 회원가입은 어떻게 수업시간에 한 자료로 해결 할 수 있었다
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+그러나 포스트 작성,수정과 같은 기능은 로그인에서 받은 token을 통해 인증을 해야 진행 할 수 있는데
+로그인 처리를 하고 클라이언트에 토큰을 넘기는 방법을 검색하다 시간이 부족해서 아쉽다.
 
-## Add your files
+검색해보니 httpsession과 관련된 내용을 활용하면 될 것 같으니 나중에 refactoring 할 때 더 해봐야 알 것 같다
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+또한 내가 nodejs나 react를 활용할 줄 알았더라면
 
+mvc 방식이 아니라 기존에 만들어놓은 api 기능들만 가지고 fe서버를 새로 만들거나 했으면
+
+controller를 따로 만들지 않고 깔끔 하게 해결 할 수 있었을 것 같다
+
+나중에 시간이 날 때 node와 같은 내용들도 한번 공부 해봐야겠다.
+
+
+## URL
+http://ec2-13-124-16-45.ap-northeast-2.compute.amazonaws.com:8080/
+
+Admin
+> userName : admin
+>
+> password : 1q2w3e4r!
+
+## ERD
+![img.png](img.png)
+
+## Endpoint
+
+## Users
+
+### 회원가입
+`(POST) /api/v1/users/join`
+
+**Request Body**
+```json
+{
+"userName": "String",
+"password": "String",
+}
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/chlalswns500/finalproject_choiminjun.git
-git branch -M main
-git push -uf origin main
+
+**Response Body**
+```json
+{
+    "resultCode": "SUCCESS",
+    "result": {
+        "userId": Long,
+        "userName": "String"
+    }
+}
+```
+<br>
+
+### 로그인
+`(POST) /api/v1/users/login`
+
+**RequestBody**
+```json
+{
+"userName": "String",
+"password": "String"
+}
 ```
 
-## Integrate with your tools
+**Response Body**
+```json
+{
+  "jwt": "String"
+}
+```
 
-- [ ] [Set up project integrations](https://gitlab.com/chlalswns500/finalproject_choiminjun/-/settings/integrations)
+### 권한 수정 : admin계정으로만 가능
+`(POST) /api/v1/users/{id}/role/change`
 
-## Collaborate with your team
+**RequestBody**
+```json
+{
+  "role" : "String"
+}
+```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+**Response Body**
+```json
+{
+  "resultCode": "SUCCESS",
+  "result": {
+    "message" : "권한 수정 완료", 
+    "userId": Long,
+  }
+}
+```
+<br>
 
-## Test and Deploy
+## Posts
+### 게시글 전체 조회
+`(GET) /api/v1/posts`
 
-Use the built-in continuous integration in GitLab.
+**Response Body**
+```json
+{
+  "resultCode": "SUCCESS",
+  "result": {
+    "content": OnePostResponse[],
+    "pageable": Pageable,
+    "last": boolean,
+    "totalElements": Number,
+    "totalPages": Number,
+    "size": Number,
+    "number": Number,
+    "first": boolean,
+    "sort": Sort,
+    "numberOfElements": Number,
+    "empty": boolean
+  }
+}
+```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+### 한 개 조회
+`(GET) /api/v1/posts/{id}`
 
-***
+**Response Body**
+```json
+{
+  "resultCode": "SUCCESS",
+  "result": {
+    "id": Long,
+    "title" : "String",
+    "body" : "String",
+    "userName": "String",
+    "createdAt" : LocalDateTime,
+    "lastModifiedAt" : LocalDateTime,
+  }
+}
+```
 
-# Editing this README
+### 게시글 작성
+`(POST) /api/v1/posts`
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+**Request Body**
+```json
+{
+    "title": "String",
+    "body": "String"
+}
+```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+**Response Body**
+```json
+{
+    "resultCode": "SUCCESS",
+    "result": {
+        "message": "포스트 등록 완료",
+        "postId": Long
+    }
+}
+```
 
-## Name
-Choose a self-explaining name for your project.
+### 수정(user가 동일하거나 admin만 가능)
+`(PUT) /api/v1/posts/{id}`
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+**Request Body**
+```json
+{
+    "title": "String",
+    "body": "String"
+}
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+**Response Body**
+```json
+{
+    "resultCode": "SUCCESS",
+    "result": {
+        "message": "포스트 수정 완료",
+        "postId": Long
+    }
+}
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+#### 삭제(user가 동일하거나 admin만 가능)
+`(DELETE) /api/v1/posts/{id}`
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**Response Body**
+```json
+{
+    "resultCode": "SUCCESS",
+    "result": {
+        "message": "포스트 삭제 완료",
+        "postId": Long
+    }
+}
+```
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+## 도전과제 - 화면 UI 개발
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### 전체 글 조회
+http://ec2-13-124-16-45.ap-northeast-2.compute.amazonaws.com:8080/posts
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### 게시글 한 개 조회
+http://ec2-13-124-16-45.ap-northeast-2.compute.amazonaws.com:8080/posts/50
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### 회원 가입
+http://ec2-13-124-16-45.ap-northeast-2.compute.amazonaws.com:8080/users/join
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
