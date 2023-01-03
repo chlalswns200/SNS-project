@@ -267,6 +267,43 @@ class PostApiControllerTest {
     }
 
     @Test
+    @DisplayName("마이 피드 - 성공")
+    @WithMockUser
+    void my_feed_success() throws Exception {
+
+        List<OnePostResponse> posts = new ArrayList<>();
+        Page<OnePostResponse> postsList = new PageImpl<>(posts);;
+
+        //given
+        given(postService.myPost(any(), any()))
+                .willReturn(postsList);
+        //when
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk());
+        //then
+    }
+
+    @Test
+    @DisplayName("마이 피드 - 실패 #1 로그인 하지 않는 경우")
+    @WithAnonymousUser
+    void my_feed_fail1() throws Exception {
+
+        List<OnePostResponse> posts = new ArrayList<>();
+        Page<OnePostResponse> postsList = new PageImpl<>(posts);;
+
+        //given
+        given(postService.myPost(any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+        //when
+        mockMvc.perform(get("/api/v1/posts/my")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+        //then
+    }
+    @Test
     @DisplayName("댓글 작성 - 성공")
     @WithMockUser
     void comment_success() throws Exception {
