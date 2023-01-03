@@ -70,4 +70,15 @@ public class PostApiController {
         Page<CommentResponse> commentsList =postService.getCommentsList(pageable,postId);
         return Response.success(commentsList);
     }
+
+    @PutMapping("/{postId}/comments/{id}")
+    public Response<CommentModifyResponse> commentModify(@PathVariable Long postId,@PathVariable Long id,
+                                                   Authentication authentication,@RequestBody CommentRequest commentRequest) {
+        CommentModifyResponse commentModifyResponse = postService.modifyComment(postId, id, authentication.getName(), commentRequest);
+        return Response.success(commentModifyResponse);
+    }
+
+
+
+
 }

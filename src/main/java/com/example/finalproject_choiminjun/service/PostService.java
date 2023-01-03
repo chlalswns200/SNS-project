@@ -116,4 +116,31 @@ public class PostService {
         Page<CommentResponse> commentResponses = CommentResponse.toList(all);
         return commentResponses;
     }
+
+    @Transactional
+    public CommentModifyResponse modifyComment(Long postId, Long id, String name, CommentRequest commentRequest) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        User user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENTS_NOT_FOUND));
+
+        if (!comment.getUser().getUserName().equals(user.getUserName())) {
+            throw new AppException(ErrorCode.INVALID_PERMISSION);
+        }
+
+        comment.modify(commentRequest.getComment());
+
+        Comment modifiedComment = commentRepository.saveAndFlush(comment);
+
+        return CommentModifyResponse.builder()
+                .postId(post.getId())
+                .comment(modifiedComment.getComment())
+                .id(modifiedComment.getId())
+                .userName(user.getUserName())
+                .createdAt(modifiedComment.getCreatedAt())
+                .lastModifiedAd(modifiedComment.getLastModifiedAt())
+                .build();
+    }
 }
