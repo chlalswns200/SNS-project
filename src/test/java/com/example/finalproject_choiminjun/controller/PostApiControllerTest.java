@@ -1,5 +1,6 @@
 package com.example.finalproject_choiminjun.controller;
 
+import com.example.finalproject_choiminjun.domain.Comment;
 import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
@@ -42,7 +43,7 @@ class PostApiControllerTest {
     PostService postService;
 
     @Test
-    @DisplayName("포스트 - 성공")
+    @DisplayName("포스트 작성 - 성공")
     @WithMockUser()
     void post_success() throws Exception {
 
@@ -63,7 +64,7 @@ class PostApiControllerTest {
     }
 
     @Test
-    @DisplayName("포스트 - 인증 실패 #1 인증 되지 않은 유저")
+    @DisplayName("포스트 작성 - 인증 실패 #1 인증 되지 않은 유저")
     @WithAnonymousUser
     void post_fail1() throws Exception {
 
@@ -329,5 +330,25 @@ class PostApiControllerTest {
                 .andExpect(status().isNotFound());
         //then
     }
+
+    @Test
+    @DisplayName("댓글 목록")
+    @WithMockUser
+    void commentList_success() throws Exception {
+
+        List<CommentResponse> comments = new ArrayList<>();
+        Page<CommentResponse> commentsList = new PageImpl<>(comments);;
+        //given
+        given(postService.getCommentsList(any(), any()))
+                .willReturn(commentsList);
+        //when
+        mockMvc.perform(get("/api/v1/posts/4/comments")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk());
+        //then
+
+    }
+
 
 }
