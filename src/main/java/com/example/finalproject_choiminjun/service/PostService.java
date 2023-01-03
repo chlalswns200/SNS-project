@@ -143,4 +143,30 @@ public class PostService {
                 .lastModifiedAd(modifiedComment.getLastModifiedAt())
                 .build();
     }
+
+    @Transactional
+    public CommentDeleteResponse deleteOneComment(Long postId, Long id, String name) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        User user = userRepository.findByUserName(name)
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COMMENTS_NOT_FOUND));
+
+        if (!comment.getUser().getUserName().equals(user.getUserName())) {
+            throw new AppException(ErrorCode.INVALID_PERMISSION);
+        }
+        Long findId = comment.getId();
+        commentRepository.deleteById(id);
+
+        return new CommentDeleteResponse("댓글 삭제 완료", findId);
+
+    }
+
+    public Page<OnePostResponse> myPost(String name, Pageable pageable) {
+        User user = userRepository.findByUserName(name).orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        Page<Post> allByUser = postRepository.findAllByUser(user,pageable);
+        return OnePostResponse.toList(allByUser);
+    }
 }

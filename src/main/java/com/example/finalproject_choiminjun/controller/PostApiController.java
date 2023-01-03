@@ -56,6 +56,15 @@ public class PostApiController {
         return Response.success(pages);
     }
 
+    @GetMapping("/my")
+    public Response<Page<OnePostResponse>> my(@PageableDefault(size = 20)
+                                                  @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            , Authentication authentication) {
+
+        Page<OnePostResponse> onePostResponses = postService.myPost(authentication.getName(), pageable);
+        return Response.success(onePostResponses);
+    }
+
     @PostMapping("/{postsId}/comments")
     public Response<CommentResponse> comments(@PathVariable Long postsId, Authentication authentication, @RequestBody CommentRequest commentRequest) {
 
@@ -76,6 +85,13 @@ public class PostApiController {
                                                    Authentication authentication,@RequestBody CommentRequest commentRequest) {
         CommentModifyResponse commentModifyResponse = postService.modifyComment(postId, id, authentication.getName(), commentRequest);
         return Response.success(commentModifyResponse);
+    }
+
+    @DeleteMapping("/{postId}/comments/{id}")
+    public Response<CommentDeleteResponse> commentDelete(@PathVariable Long postId,@PathVariable Long id,
+                                                         Authentication authentication) {
+        CommentDeleteResponse commentDeleteResponse = postService.deleteOneComment(postId,id,authentication.getName());
+        return Response.success(commentDeleteResponse);
     }
 
 

@@ -20,7 +20,6 @@ public class CommentModifyResponse {
     private String userName;
     private Long postId;
     private LocalDateTime createdAt;
-
     private LocalDateTime lastModifiedAd;
 
 }
