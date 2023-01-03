@@ -1,8 +1,6 @@
 package com.example.finalproject_choiminjun.controller;
 
-import com.example.finalproject_choiminjun.domain.dto.OnePostResponse;
-import com.example.finalproject_choiminjun.domain.dto.PostRequest;
-import com.example.finalproject_choiminjun.domain.dto.PostResponse;
+import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.service.PostService;
@@ -265,6 +263,71 @@ class PostApiControllerTest {
                         .with(csrf()))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("댓글 작성 - 성공")
+    @WithMockUser
+    void comment_success() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test-1");
+        //given
+        given(postService.writeComment(any(), any(), any()))
+                .willReturn(new CommentResponse());
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest))
+                )
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("SUCCESS"))
+                .andExpect(status().isOk());
+        //then
+    }
+
+    @Test
+    @DisplayName("댓글 작성 - 실패#1 로그인 하지 않은 경우")
+    @WithAnonymousUser
+    void comment_fail1() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test-1");
+        //given
+        given(postService.writeComment(any(), any(), any()))
+                .willReturn(new CommentResponse());
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest))
+                )
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+        //then
+    }
+
+    @Test
+    @DisplayName("댓글 작성 - 실패#2 게시물이 존재하지 않는 경우")
+    @WithMockUser
+    void comment_fail2() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test-1");
+        //given
+        given(postService.writeComment(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.POST_NOT_FOUND));
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/comments")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest))
+                )
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isNotFound());
+        //then
     }
 
 }

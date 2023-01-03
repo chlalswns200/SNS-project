@@ -5,6 +5,7 @@ import com.example.finalproject_choiminjun.domain.UserRole;
 import com.example.finalproject_choiminjun.domain.dto.UserResponse;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
+import com.example.finalproject_choiminjun.repository.CommentRepository;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,14 @@ class UserServiceTest {
 
     PostRepository postRepository = mock(PostRepository.class);
     UserRepository userRepository = mock(UserRepository.class);
+
+    CommentRepository commentRepository = mock(CommentRepository.class);
     BCryptPasswordEncoder bCryptPasswordEncoder = mock(BCryptPasswordEncoder.class);
 
 
     @BeforeEach
     public void setUp() {
-        postService = new PostService(postRepository, userRepository);
+        postService = new PostService(postRepository, userRepository,commentRepository);
         userService = new UserService(userRepository,bCryptPasswordEncoder);
     }
 
