@@ -505,6 +505,29 @@ class PostApiControllerTest {
     }
 
     @Test
+    @DisplayName("댓글 수정 실패#5 - Post 없는 경우")
+    @WithMockUser
+    void comment_modify_fail5() throws Exception {
+
+        CommentRequest commentRequest = new CommentRequest("comment-test");
+
+        //given
+        given(postService.modifyComment(any(), any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.POST_NOT_FOUND));
+
+        //when
+        mockMvc.perform(put("/api/v1/posts/1/comments/1")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(commentRequest)))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isNotFound());
+        //then
+
+    }
+
+    @Test
     @DisplayName("댓글 삭제 - 성공")
     @WithMockUser
     void comments_delete_success() throws Exception {
@@ -593,6 +616,24 @@ class PostApiControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("resultCode").value("ERROR"))
                 .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 - 실패 #5 Post없는 경우")
+    @WithMockUser
+    void comments_delete_fail5() throws Exception {
+
+        CommentDeleteResponse commentDeleteResponse = new CommentDeleteResponse("삭제 완료", 1L);
+
+        //given
+        given(postService.deleteOneComment(any(), any(), any()))
+                .willThrow(new AppException(ErrorCode.POST_NOT_FOUND));
+        //when
+        mockMvc.perform(delete("/api/v1/posts/5/comments/1")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(jsonPath("resultCode").value("ERROR"))
+                .andExpect(status().isNotFound());
     }
 
 }
