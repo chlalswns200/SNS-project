@@ -272,11 +272,10 @@ class PostApiControllerTest {
     void my_feed_success() throws Exception {
 
         List<OnePostResponse> posts = new ArrayList<>();
-        Page<OnePostResponse> postsList = new PageImpl<>(posts);;
 
         //given
         given(postService.myPost(any(), any()))
-                .willReturn(postsList);
+                .willReturn(Page.empty());
         //when
         mockMvc.perform(get("/api/v1/posts/my")
                         .with(csrf()))
@@ -291,11 +290,10 @@ class PostApiControllerTest {
     void my_feed_fail1() throws Exception {
 
         List<OnePostResponse> posts = new ArrayList<>();
-        Page<OnePostResponse> postsList = new PageImpl<>(posts);;
 
         //given
         given(postService.myPost(any(), any()))
-                .willThrow(new AppException(ErrorCode.INVALID_PERMISSION));
+                .willReturn(Page.empty());
         //when
         mockMvc.perform(get("/api/v1/posts/my")
                         .with(csrf()))
@@ -303,6 +301,7 @@ class PostApiControllerTest {
                 .andExpect(status().isUnauthorized());
         //then
     }
+
     @Test
     @DisplayName("댓글 작성 - 성공")
     @WithMockUser
