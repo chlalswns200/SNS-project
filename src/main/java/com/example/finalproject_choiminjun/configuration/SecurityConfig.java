@@ -27,7 +27,8 @@ public class SecurityConfig {
                 .cors().and()
                 .authorizeRequests()
                 .antMatchers("/api/v1/users/join", "/api/v1/users/login").permitAll()// join, login은 언제나 가능
-                .antMatchers(HttpMethod.GET,"/api/v1/posts/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/v1/posts/*/comments").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/v1/posts/*/likes").permitAll()
                 .antMatchers(HttpMethod.POST,"/api/v1/posts/*", "/api/v1/posts").authenticated()
                 .antMatchers("/api/v1/users/*/role/change").authenticated()
                 .antMatchers(HttpMethod.POST,"/api/v1/**").authenticated()

@@ -1,13 +1,11 @@
 package com.example.finalproject_choiminjun.service;
 
-import com.example.finalproject_choiminjun.domain.Comment;
-import com.example.finalproject_choiminjun.domain.Post;
-import com.example.finalproject_choiminjun.domain.User;
-import com.example.finalproject_choiminjun.domain.UserRole;
+import com.example.finalproject_choiminjun.domain.*;
 import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.repository.CommentRepository;
+import com.example.finalproject_choiminjun.repository.LikeRepository;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +29,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
 
+    private final LikeRepository likeRepository;
     public PostResponse post(PostRequest postRequest,String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userName + "이 없습니다."));
@@ -66,6 +66,7 @@ public class PostService {
 
     }
 
+    @Transactional
     public PostResponse deleteOnePost(Long id, String userName) {
 
         Post post = postRepository.findById(id)
@@ -84,9 +85,9 @@ public class PostService {
             comment.deletePostKey();
             commentRepository.saveAndFlush(comment);
         }
+        likeRepository.deleteAllByPost(post);
         post.delete();
         postRepository.saveAndFlush(post);
-
 
         return new PostResponse("포스트 삭제 완료", deleteId);
     }
@@ -177,5 +178,34 @@ public class PostService {
         User user = userRepository.findByUserName(name).orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
         Page<Post> allByUser = postRepository.findAllByUser(user,pageable);
         return OnePostResponse.toList(allByUser);
+    }
+
+    @Transactional
+    public String pushLike(Long postId, String userName) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        User user = userRepository.findByUserName(userName)
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+
+        Optional<Like> byPostAndUser = likeRepository.findByPostAndUser(post, user);
+
+        if (byPostAndUser.isPresent()) {
+            likeRepository.delete(byPostAndUser.get());
+            return "좋아요가 취소 되었습니다.";
+        } else {
+            Like of = Like.of(post, user);
+            likeRepository.save(of);
+            return "좋아요를 눌렀습니다.";
+        }
+    }
+
+    public long getCount(Long postId) {
+
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        List<Like> byPost = likeRepository.findByPost(post);
+        return byPost.stream().count();
+
     }
 }

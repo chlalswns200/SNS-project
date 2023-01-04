@@ -94,7 +94,17 @@ public class PostApiController {
         return Response.success(commentDeleteResponse);
     }
 
+    @PostMapping("/{postId}/likes")
+    public Response<String> likes(@PathVariable Long postId, Authentication authentication){
+        String result = postService.pushLike(postId, authentication.getName());
+        return Response.success(result);
+    }
 
+    @GetMapping("/{postId}/likes")
+    public Response<Long> likes(@PathVariable Long postId){
+        long count = postService.getCount(postId);
+        return Response.success(new Long(count));
+    }
 
 
 }
