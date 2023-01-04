@@ -9,6 +9,7 @@ import com.example.finalproject_choiminjun.domain.dto.PostResponse;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
 import com.example.finalproject_choiminjun.repository.CommentRepository;
+import com.example.finalproject_choiminjun.repository.LikeRepository;
 import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,12 +34,13 @@ public class PostServiceTest {
     PostRepository postRepository = mock(PostRepository.class);
     UserRepository userRepository = mock(UserRepository.class);
     CommentRepository commentRepository = mock(CommentRepository.class);
+    LikeRepository likeRepository = mock(LikeRepository.class);
     BCryptPasswordEncoder bCryptPasswordEncoder = mock(BCryptPasswordEncoder.class);
 
 
     @BeforeEach
     public void setUp() {
-        postService = new PostService(postRepository, userRepository, commentRepository);
+        postService = new PostService(postRepository, userRepository, commentRepository,likeRepository);
         userService = new UserService(userRepository,bCryptPasswordEncoder);
 
     }

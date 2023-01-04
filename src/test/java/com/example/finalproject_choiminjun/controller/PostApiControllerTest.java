@@ -635,4 +635,72 @@ class PostApiControllerTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("좋아요 누르기 - 성공#1 좋아요 누르기 성공")
+    @WithMockUser
+    void push_like_success1() throws Exception {
+        //given
+        given(postService.pushLike(any(), any()))
+                .willReturn("좋아요를 눌렀습니다.");
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("result").value("좋아요를 눌렀습니다."));
+        //then
+    }
+
+    @Test
+    @DisplayName("좋아요 누르기 - 성공#2 좋아요 취소하기 성공")
+    @WithMockUser
+    void push_like_success2() throws Exception {
+        //given
+        given(postService.pushLike(any(), any()))
+                .willReturn("좋아요가 취소 되었습니다.");
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("result").value("좋아요가 취소 되었습니다."));
+        //then
+    }
+
+    @Test
+    @DisplayName("좋아요 누르기 - 실패#1 로그인 하지 않은 경우")
+    @WithAnonymousUser
+    void push_like_fail1() throws Exception {
+        //given
+        given(postService.pushLike(any(), any()))
+                .willThrow(new AppException(ErrorCode.INVALID_TOKEN));
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isUnauthorized());
+        //then
+    }
+
+    @Test
+    @DisplayName("좋아요 누르기 - 실패#2 해당 Post가 없는 경우")
+    @WithMockUser
+    void push_like_fail2() throws Exception {
+        //given
+        given(postService.pushLike(any(), any()))
+                .willThrow(new AppException(ErrorCode.POST_NOT_FOUND));
+
+        //when
+        mockMvc.perform(post("/api/v1/posts/1/likes")
+                        .with(csrf()))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+        //then
+    }
+
+
+
 }
