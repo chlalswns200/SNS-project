@@ -12,6 +12,7 @@ import com.example.finalproject_choiminjun.repository.PostRepository;
 import com.example.finalproject_choiminjun.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Where;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,8 +28,8 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-
     private final CommentRepository commentRepository;
+
     public PostResponse post(PostRequest postRequest,String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userName + "이 없습니다."));
@@ -76,10 +77,18 @@ public class PostService {
         if (!Objects.equals(post.getUser().getId(),user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);
         }
-        postRepository.delete(post);
+        Long deleteId = post.getId();
 
-        return new PostResponse("포스트 삭제 완료", post.getId());
+        List<Comment> allByPostId = commentRepository.findAllByPostId(deleteId);
+        for (Comment comment : allByPostId) {
+            comment.deletePostKey();
+            commentRepository.saveAndFlush(comment);
+        }
+        post.delete();
+        postRepository.saveAndFlush(post);
 
+
+        return new PostResponse("포스트 삭제 완료", deleteId);
     }
 
     public Page<OnePostResponse> getPostList(Pageable pageable) {

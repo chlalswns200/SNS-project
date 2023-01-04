@@ -74,7 +74,7 @@ public class PostApiController {
     }
 
     @GetMapping("/{postId}/comments")
-    public Response<Page<CommentResponse>> commentsList(@PageableDefault(size = 20)
+    public Response<Page<CommentResponse>> commentsList(@PageableDefault(size = 10)
                                                             @SortDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,@PathVariable Long postId) {
         Page<CommentResponse> commentsList =postService.getCommentsList(pageable,postId);
         return Response.success(commentsList);
