@@ -8,10 +8,7 @@ import com.example.finalproject_choiminjun.domain.dto.PostRequest;
 import com.example.finalproject_choiminjun.domain.dto.PostResponse;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
-import com.example.finalproject_choiminjun.repository.CommentRepository;
-import com.example.finalproject_choiminjun.repository.LikeRepository;
-import com.example.finalproject_choiminjun.repository.PostRepository;
-import com.example.finalproject_choiminjun.repository.UserRepository;
+import com.example.finalproject_choiminjun.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.*;
 import org.springframework.security.core.parameters.P;
@@ -36,11 +33,12 @@ public class PostServiceTest {
     CommentRepository commentRepository = mock(CommentRepository.class);
     LikeRepository likeRepository = mock(LikeRepository.class);
     BCryptPasswordEncoder bCryptPasswordEncoder = mock(BCryptPasswordEncoder.class);
+    AlarmRepository alarmRepository = mock(AlarmRepository.class);
 
 
     @BeforeEach
     public void setUp() {
-        postService = new PostService(postRepository, userRepository, commentRepository,likeRepository);
+        postService = new PostService(postRepository, userRepository, commentRepository,likeRepository,alarmRepository);
         userService = new UserService(userRepository,bCryptPasswordEncoder);
 
     }
