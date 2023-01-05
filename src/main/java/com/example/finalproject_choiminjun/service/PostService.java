@@ -4,10 +4,7 @@ import com.example.finalproject_choiminjun.domain.*;
 import com.example.finalproject_choiminjun.domain.dto.*;
 import com.example.finalproject_choiminjun.exception.AppException;
 import com.example.finalproject_choiminjun.exception.ErrorCode;
-import com.example.finalproject_choiminjun.repository.CommentRepository;
-import com.example.finalproject_choiminjun.repository.LikeRepository;
-import com.example.finalproject_choiminjun.repository.PostRepository;
-import com.example.finalproject_choiminjun.repository.UserRepository;
+import com.example.finalproject_choiminjun.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Where;
@@ -28,8 +25,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
-
     private final LikeRepository likeRepository;
+    private final AlarmRepository alarmRepository;
+
     public PostResponse post(PostRequest postRequest,String userName) {
         User user = userRepository.findByUserName(userName)
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userName + "이 없습니다."));
@@ -108,6 +106,9 @@ public class PostService {
                 .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
 
         Comment save = commentRepository.save( Comment.of(commentRequest.getComment(), post, user));
+
+        Alarm alarm = Alarm.commentAlarm(post, user);
+        alarmRepository.save(alarm);
 
         return CommentResponse.builder()
                 .id(save.getId())
@@ -196,6 +197,8 @@ public class PostService {
         } else {
             Like of = Like.of(post, user);
             likeRepository.save(of);
+            Alarm likeAlarm = Alarm.likeAlarm(post,user);
+            alarmRepository.save(likeAlarm);
             return "좋아요를 눌렀습니다.";
         }
     }
