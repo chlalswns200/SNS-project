@@ -1,5 +1,6 @@
 package com.example.finalproject_choiminjun.domain.dto;
 
+import com.example.finalproject_choiminjun.domain.Alarm;
 import com.example.finalproject_choiminjun.domain.Post;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,28 +26,17 @@ public class OnePostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime lastModifiedAt;
 
-    public static OnePostResponse entityToResponse(Post post) {
 
-        OnePostResponse opr = OnePostResponse.builder()
-                .id(post.getId())
-                .title(post.getTitle())
-                .body(post.getBody())
-                .userName(post.getUser().getUserName())
-                .createdAt(post.getCreatedAt())
-                .lastModifiedAt(post.getLastModifiedAt())
-                .build();
-        return opr;
-    }
 
-    public static Page<OnePostResponse> toList(Page<Post> all) {
-
-        List<OnePostResponse> postList = new ArrayList<>();
-
-        for (Post post : all) {
-            OnePostResponse onePostResponse = OnePostResponse.entityToResponse(post);
-            postList.add(onePostResponse);
-        }
-        Page<OnePostResponse> postPage = new PageImpl<>(postList);
-        return postPage;
+    public static Page<OnePostResponse> makeResponse(Page<Post> allByUser) {
+        Page<OnePostResponse> postResponses = allByUser.map(m -> OnePostResponse.builder()
+                .id(m.getId())
+                .title(m.getTitle())
+                .body(m.getBody())
+                .userName(m.getUser().getUserName())
+                .createdAt(m.getCreatedAt())
+                .lastModifiedAt(m.getLastModifiedAt())
+                .build());
+        return postResponses;
     }
 }

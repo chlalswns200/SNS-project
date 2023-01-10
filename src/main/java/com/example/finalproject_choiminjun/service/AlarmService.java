@@ -18,10 +18,7 @@ import java.util.List;
 public class AlarmService {
 
     private final AlarmRepository alarmRepository;
-    private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final CommentRepository commentRepository;
-    private final LikeRepository likeRepository;
     public Page<AlarmResponse> getAlarmList(String name, Pageable pageable) {
 
         User user = userRepository.findByUserName(name)

@@ -40,7 +40,14 @@ public class PostService {
     public OnePostResponse get(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-        OnePostResponse onePostResponse = OnePostResponse.entityToResponse(post);
+        OnePostResponse onePostResponse = OnePostResponse.builder()
+                .id(post.getId())
+                .title(post.getTitle())
+                .body(post.getBody())
+                .userName(post.getUser().getUserName())
+                .lastModifiedAt(post.getLastModifiedAt())
+                .createdAt(post.getCreatedAt())
+                .build();
         return onePostResponse;
 
     }
@@ -92,7 +99,7 @@ public class PostService {
 
     public Page<OnePostResponse> getPostList(Pageable pageable) {
         Page<Post> all = postRepository.findAll(pageable);
-        Page<OnePostResponse> responseList = OnePostResponse.toList(all);
+        Page<OnePostResponse> responseList = OnePostResponse.makeResponse(all);
         return responseList;
 
     }
@@ -178,7 +185,7 @@ public class PostService {
     public Page<OnePostResponse> myPost(String name, Pageable pageable) {
         User user = userRepository.findByUserName(name).orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
         Page<Post> allByUser = postRepository.findAllByUser(user,pageable);
-        return OnePostResponse.toList(allByUser);
+        return OnePostResponse.makeResponse(allByUser);
     }
 
     @Transactional
