@@ -28,9 +28,17 @@ public class PostService {
     private final LikeRepository likeRepository;
     private final AlarmRepository alarmRepository;
 
+    private User findUser(Optional<User> userRepository) {
+        return userRepository
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+    }
+    private Post findPostById(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+    }
+
     public PostResponse post(PostRequest postRequest,String userName) {
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND, userName + "이 없습니다."));
+        User user =  findUser(userRepository.findByUserName(userName));
 
         Post post = Post.of(postRequest,user);
         Post save = postRepository.save(post);
@@ -38,8 +46,7 @@ public class PostService {
     }
 
     public OnePostResponse get(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post post = findPostById(id);
         OnePostResponse onePostResponse = OnePostResponse.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -55,13 +62,11 @@ public class PostService {
     @Transactional
     public PostResponse modifyOnePost(Long id,String userName,PostRequest postRequest) {
 
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post post = findPostById(id);
 
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        User byUserName = findUser(userRepository.findByUserName(userName));
 
-        if (!Objects.equals(post.getUser().getId(),user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN)) {
+        if (!Objects.equals(post.getUser().getId(),byUserName.getId()) && !Objects.equals(byUserName.getRole(), UserRole.ADMIN)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);
         }
         post.modifyPost(postRequest.getTitle(), postRequest.getBody());
@@ -74,13 +79,11 @@ public class PostService {
     @Transactional
     public PostResponse deleteOnePost(Long id, String userName) {
 
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post post = findPostById(id);
 
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        User byUserName = findUser(userRepository.findByUserName(userName));
 
-        if (!Objects.equals(post.getUser().getId(),user.getId()) && !Objects.equals(user.getRole(), UserRole.ADMIN)) {
+        if (!Objects.equals(post.getUser().getId(),byUserName.getId()) && !Objects.equals(byUserName.getRole(), UserRole.ADMIN)) {
             throw new AppException(ErrorCode.INVALID_PERMISSION);
         }
         Long deleteId = post.getId();
@@ -106,30 +109,27 @@ public class PostService {
 
     public CommentResponse writeComment(Long postsId,String userName ,CommentRequest commentRequest) {
 
-        Post post = postRepository.findById(postsId)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post post = findPostById(postsId);
 
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        User byUserName = findUser(userRepository.findByUserName(userName));
 
-        Comment save = commentRepository.save( Comment.of(commentRequest.getComment(), post, user));
+        Comment save = commentRepository.save( Comment.of(commentRequest.getComment(), post, byUserName));
 
-        Alarm alarm = Alarm.commentAlarm(post, user);
+        Alarm alarm = Alarm.commentAlarm(post, byUserName);
         alarmRepository.save(alarm);
 
         return CommentResponse.builder()
                 .id(save.getId())
                 .comment(save.getComment())
                 .createdAt(save.getCreatedAt())
-                .userName(user.getUserName())
+                .userName(byUserName.getUserName())
                 .postId(post.getId())
                 .build();
     }
 
     public Page<CommentResponse> getCommentsList(Pageable pageable,Long postId) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post post = findPostById(postId);
         Page<Comment> all = commentRepository.findAllByPostId(pageable,post.getId());
         Page<CommentResponse> commentResponses = CommentResponse.toList(all);
         return commentResponses;
@@ -137,10 +137,9 @@ public class PostService {
 
     @Transactional
     public CommentModifyResponse modifyComment(Long postId, Long id, String name, CommentRequest commentRequest) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-        User user = userRepository.findByUserName(name)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        Post post = findPostById(postId);
+        User user = findUser(userRepository.findByUserName(name));
+
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENTS_NOT_FOUND));
 
@@ -165,10 +164,10 @@ public class PostService {
     @Transactional
     public CommentDeleteResponse deleteOneComment(Long postId, Long id, String name) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-        User user = userRepository.findByUserName(name)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        Post post = findPostById(postId);
+
+        User user = findUser(userRepository.findByUserName(name));
+
         Comment comment = commentRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.COMMENTS_NOT_FOUND));
 
@@ -182,8 +181,9 @@ public class PostService {
 
     }
 
+
     public Page<OnePostResponse> myPost(String name, Pageable pageable) {
-        User user = userRepository.findByUserName(name).orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        User user = findUser(userRepository.findByUserName(name));
         Page<Post> allByUser = postRepository.findAllByUser(user,pageable);
         return OnePostResponse.makeResponse(allByUser);
     }
@@ -191,20 +191,17 @@ public class PostService {
     @Transactional
     public String pushLike(Long postId, String userName) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
-        User user = userRepository.findByUserName(userName)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
-
-        Optional<Like> byPostAndUser = likeRepository.findByPostAndUser(post, user);
+        Post post = findPostById(postId);
+        User byUserName = findUser(userRepository.findByUserName(userName));
+        Optional<Like> byPostAndUser = likeRepository.findByPostAndUser(post, byUserName);
 
         if (byPostAndUser.isPresent()) {
             likeRepository.delete(byPostAndUser.get());
             return "좋아요가 취소 되었습니다.";
         } else {
-            Like of = Like.of(post, user);
+            Like of = Like.of(post, byUserName);
             likeRepository.save(of);
-            Alarm likeAlarm = Alarm.likeAlarm(post,user);
+            Alarm likeAlarm = Alarm.likeAlarm(post,byUserName);
             alarmRepository.save(likeAlarm);
             return "좋아요를 눌렀습니다.";
         }
@@ -212,8 +209,7 @@ public class PostService {
 
     public long getCount(Long postId) {
 
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
+        Post post = findPostById(postId);
         List<Like> byPost = likeRepository.findByPost(post);
         return byPost.stream().count();
 

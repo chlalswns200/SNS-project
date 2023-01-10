@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +20,14 @@ public class AlarmService {
 
     private final AlarmRepository alarmRepository;
     private final UserRepository userRepository;
+
+    private User findUser(Optional<User> userRepository) {
+        return userRepository
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+    }
     public Page<AlarmResponse> getAlarmList(String name, Pageable pageable) {
 
-        User user = userRepository.findByUserName(name)
-                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+        User user = findUser(userRepository.findByUserName(name));
 
         Page<Alarm> allByTargetId = alarmRepository.findAllByTargetId(user.getId(), pageable);
 
