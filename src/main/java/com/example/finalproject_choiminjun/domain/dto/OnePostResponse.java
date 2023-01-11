@@ -29,6 +29,7 @@ public class OnePostResponse {
 
 
     public static Page<OnePostResponse> makeResponse(Page<Post> allByUser) {
+
         Page<OnePostResponse> postResponses = allByUser.map(m -> OnePostResponse.builder()
                 .id(m.getId())
                 .title(m.getTitle())
